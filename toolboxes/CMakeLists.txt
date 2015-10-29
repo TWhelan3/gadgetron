@@ -18,7 +18,9 @@ if (FFTW3_FOUND)
   add_subdirectory(core)
   add_subdirectory(mri_core)
   add_subdirectory(mri)
-  add_subdirectory(ct)
+  if (NOT(WIN32))
+	  add_subdirectory(ct)
+  endif()
 endif()
 
 add_subdirectory(klt)
@@ -28,7 +30,6 @@ add_subdirectory(registration)
 
 IF (ACE_FOUND)
   add_subdirectory(gadgettools)
-  add_subdirectory(cloudbus)
 ENDIF()
 
 IF (FFTW3_FOUND AND ISMRMRD_FOUND)

@@ -1,5 +1,7 @@
 #pragma once
 
+#include <ace/OS_NS_unistd.h>
+
 #include "Gadget.h"
 #include "hoNDArray.h"
 #include "GadgetReference.h"
@@ -45,6 +47,7 @@ namespace Gadgetron{
           register_converter<hoNDArray< std::complex<float> > >();
           register_converter<hoNDArray< float > >();
           register_converter<hoNDArray< unsigned short > >();
+          register_converter<hoNDArray< ISMRMRD::AcquisitionHeader > >();
 
           // ensure boost can convert ISMRMRD headers automatically
           register_converter<ISMRMRD::ImageHeader>();
@@ -82,7 +85,10 @@ namespace Gadgetron{
             // Reload the module so changes take place at Gadgetron runtime
             boost::python::import("__main__").attr("__dict__")[module_name.c_str()] = module_;
             std::string tmp = std::string("reload(") + std::string(module_name.c_str()) + std::string(")\n");
-
+#if defined PYVER && PYVER == 3
+            // prefix reload call for Python 3
+            tmp = std::string("from importlib import reload;") + tmp;
+#endif
             //GDEBUG("Reloading with command: %s\n", tmp.c_str());
             boost::python::exec(tmp.c_str(), boost::python::import("__main__").attr("__dict__"));
 

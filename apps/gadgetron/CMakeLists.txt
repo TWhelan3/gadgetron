@@ -3,12 +3,13 @@ configure_file(gadgetron_config.in gadgetron_config.h)
 include_directories(
   ${CMAKE_CURRENT_BINARY_DIR}
   ${CMAKE_SOURCE_DIR}/apps/gadgetron
-  ${CMAKE_SOURCE_DIR}/toolboxes/cloudbus
   ${CMAKE_SOURCE_DIR}/toolboxes/gadgettools
   ${CMAKE_SOURCE_DIR}/toolboxes/core
   ${CMAKE_SOURCE_DIR}/toolboxes/core/cpu/hostutils
   ${CMAKE_SOURCE_DIR}/toolboxes/core/cpu/image
   ${CMAKE_SOURCE_DIR}/toolboxes/core/cpu/algorithm
+  ${CMAKE_SOURCE_DIR}/network/gadgetron/messages
+  ${CMAKE_SOURCE_DIR}/network/gadgetron/sharcnet
   ${Boost_INCLUDE_DIR}
   ${ACE_INCLUDE_DIR}
   )
@@ -17,8 +18,9 @@ if (CUDA_FOUND)
   include_directories(${CUDA_INCLUDE_DIRS})
 endif(CUDA_FOUND)
 
+target_link_libraries(-nostartfiles)
+
 add_executable(gadgetron 
-  main.cpp 
   GadgetServerAcceptor.h
   GadgetServerAcceptor.cpp 
   GadgetStreamController.h
@@ -33,8 +35,8 @@ add_executable(gadgetron
 target_link_libraries(gadgetron 
   gadgetron_gadgetbase
   gadgetron_toolbox_log
-  gadgetron_toolbox_gadgettools gadgetron_toolbox_cloudbus 
-  optimized ${ACE_LIBRARIES} debug ${ACE_DEBUG_LIBRARY} 
+  gadgetron_toolbox_gadgettools 
+  optimized ${ACE_LIBRARIES} debug ${ACE_DEBUG_LIBRARY} -nostartfiles
  )
 
 find_package(PythonLibs)
@@ -69,8 +71,8 @@ add_library(gadgetron_gadgetbase SHARED
 target_link_libraries(gadgetron_gadgetbase
   optimized ${ACE_LIBRARIES} debug ${ACE_DEBUG_LIBRARY}
   gadgetron_toolbox_gadgettools
-  gadgetron_toolbox_cloudbus
   gadgetron_toolbox_log
+  cfmm_messages
 )
 
 set_target_properties(gadgetron_gadgetbase PROPERTIES VERSION ${GADGETRON_VERSION_STRING} SOVERSION ${GADGETRON_SOVERSION})
