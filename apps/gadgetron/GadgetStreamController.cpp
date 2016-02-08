@@ -26,12 +26,12 @@ GadgetStreamController::GadgetStreamController()
   , notifier_ (0, this, ACE_Event_Handler::WRITE_MASK)
   , writer_task_(&this->peer())
 {
-  CloudBus::instance()->report_recon_start();    
+ // CloudBus::instance()->report_recon_start();    
 }
 
 GadgetStreamController::~GadgetStreamController()
 { 
-  CloudBus::instance()->report_recon_end();
+//  CloudBus::instance()->report_recon_end();
 }
 
 int GadgetStreamController::open (void)
