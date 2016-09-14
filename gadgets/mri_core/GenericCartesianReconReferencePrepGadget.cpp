@@ -111,7 +111,7 @@ namespace Gadgetron {
         size_t e;
         for (e = 0; e < recon_bit_->rbit_.size(); e++)
         {
-        		auto & rbit = recon_bit_->rbit_[e];
+            auto & rbit = recon_bit_->rbit_[e];
             std::stringstream os;
             os << "_encoding_" << e;
 
@@ -124,7 +124,7 @@ namespace Gadgetron {
                 // if no ref data is set, make copy the ref point from the  data
                 if (!rbit.ref_)
                 {
-                	rbit.ref_ = rbit.data_;
+                    rbit.ref_ = rbit.data_;
                 }
             }
 
@@ -132,10 +132,11 @@ namespace Gadgetron {
 
             // useful variables
             hoNDArray< std::complex<float> >& ref = (*rbit.ref_).data_;
+            hoNDArray< std::complex<float> >& dat = rbit.data_.data_;
 
             SamplingLimit sampling_limits[3];
             for (int i = 0; i < 3; i++)
-            	sampling_limits[i] = (*rbit.ref_).sampling_.sampling_limits_[i];
+                sampling_limits[i] = (*rbit.ref_).sampling_.sampling_limits_[i];
 
             size_t RO = ref.get_size(0);
             size_t E1 = ref.get_size(1);
@@ -154,6 +155,37 @@ namespace Gadgetron {
             // 2) detect the sampled region and crop the ref data if needed
             // 3) update the sampling_limits
             // -----------------------------------------
+
+
+            ///AWKWARD FLIP
+            //For each E1 in each CHA, flip the RO 
+            for(int n=0; n<N; n+=2)
+            {
+                std::vector<std::complex<float>> oldROref;
+                std::vector<std::complex<float>> oldROdat;
+                oldROref.resize(RO);
+                oldROdat.resize(RO);
+                    for (int cha = 0; cha < CHA; cha++)
+                    {
+                            for (int e1 = 0; e1 < E1; e1++)
+                            {
+                                   for (int ro = 0; ro < RO; ro++) 
+                                {
+                                        oldROref[ro] =ref(ro, e1, 0, cha, n, 0, 0);
+                                        oldROdat[ro] =dat(ro, e1, 0, cha, n, 0, 0);
+                                }
+                                for (int ro = 0; ro < RO; ro++) 
+                                {
+                                        ref(ro, e1, 0, cha, n, 0, 0)=-oldROref[RO-ro-1];
+                                        dat(ro, e1, 0, cha, n, 0, 0)=-oldROdat[RO-ro-1];
+                                }
+                            }
+                   }
+           }
+
+            //End of AWKWARD FLIP
+
+
 
             hoNDArray< std::complex<float> > ref_recon_buf;
 
@@ -280,8 +312,7 @@ namespace Gadgetron {
 
             ref = ref_calib;
             for (int i = 0; i < 3; i++)
-            	(*rbit.ref_).sampling_.sampling_limits_[i] = sampling_limits[i];
-
+                (*rbit.ref_).sampling_.sampling_limits_[i] = sampling_limits[i];
        }
 
         if (this->next()->putq(m1) < 0)

@@ -1425,23 +1425,26 @@ void apply_unmix_coeff_aliased_image_3D(const hoNDArray<T>& aliasedIm, const hoN
         GADGET_CHECK_THROW(unmixCoeff.get_size(2) == E2);
         GADGET_CHECK_THROW(unmixCoeff.get_size(3) == srcCHA);
 
-        if (complexIm.get_size(0) != RO
-            || complexIm.get_size(1) != E1
-            || complexIm.get_size(2) != E2
-            || complexIm.get_number_of_elements() != RO*E1*E2*N)
-        {
-            complexIm.create(RO, E1, E2, N);
-        }
-
+        //complexIm.create(RO, E1, E2, srcCHA, N);
+        
         hoNDArray<T> buffer;
-        buffer.create(dim);
+	hoNDArray<T> dummy;
+        //buffer.create(dim);
+	buffer.create(RO, E1, E2, srcCHA, N, complexIm.begin());
+	//dummy.create(RO, E1, E2, srcCHA,N);
+	
+	//T* up=dummy.get_data_ptr();
+
+	//for(int ii=0; ii<RO*E1*E2*srcCHA; ii++)
+	//if(std::abs(up[ii])<.3)
+	//	up[ii]=0;
 
         Gadgetron::multiply(aliasedIm, unmixCoeff, buffer);
+	// Gadgetron::add(dummy, unmixCoeff, buffer);
+       //hoNDArray<T> bufferIm;
+      //  bufferIm.create(RO, E1, E2, 1, N, complexIm.begin());
 
-        hoNDArray<T> bufferIm;
-        bufferIm.create(RO, E1, E2, 1, N, complexIm.begin());
-
-        Gadgetron::sum_over_dimension(buffer, bufferIm, 3);
+        //Gadgetron::sum_over_dimension(buffer, bufferIm, 3);
     }
     catch (...)
     {

@@ -803,8 +803,8 @@ namespace Gadgetron {
             size_t convkE1 = recon_obj.kernel_.get_size(1);
             size_t convkE2 = recon_obj.kernel_.get_size(2);
 
-            recon_obj.recon_res_.data_.create(RO, E1, E2, 1, N, S, SLC);
-
+            recon_obj.recon_res_.data_.create(RO, E1, E2, dstCHA, N, S, SLC);
+		//recon_obj.recon_res_.data_.create(RO, E1, E2, 1, N, S, SLC);
             //if (!debug_folder_full_path_.empty())
             //{
             //    std::stringstream os;
@@ -869,9 +869,11 @@ namespace Gadgetron {
                     T* pUnmix = &(recon_obj.unmixing_coeff_(0, 0, 0, 0, usedN, usedS, slc));
                     hoNDArray< std::complex<float> > unmixing(RO, E1, E2, srcCHA, pUnmix);
 
-                    T* pRes = &(recon_obj.recon_res_.data_(0, 0, 0, 0, n, s, slc));
-                    hoNDArray< std::complex<float> > res(RO, E1, E2, 1, pRes);
 
+			//Gadgetron::square_inplace(&unmixing);
+                    T* pRes = &(recon_obj.recon_res_.data_(0, 0, 0, 0, n, s, slc));
+                    hoNDArray< std::complex<float> > res(RO, E1, E2, dstCHA, pRes);
+			//hoNDArray< std::complex<float> > res(RO, E1, E2, 1, pRes);
                     Gadgetron::apply_unmix_coeff_aliased_image_3D(aliasedIm, unmixing, res);
                 }
             }
