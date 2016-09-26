@@ -87,7 +87,9 @@ set( gadgetron_mricore_header_files GadgetMRIHeaders.h
                                     SimpleReconGadget.h
                                     ImageSortGadget.h
                                     GenericCartesianGrappaReconGadget.h 
+                                    MultiChannelCartesianGrappaReconGadget.h 
                                     GenericCartesianReconReferencePrepGadget.h 
+                                    FlippingCartesianReconReferencePrepGadget.h 
                                     GenericReconPartialFourierHandlingGadget.h 
                                     GenericReconPartialFourierHandlingFilterGadget.h 
                                     GenericReconPartialFourierHandlingPOCSGadget.h 
@@ -128,7 +130,9 @@ set( gadgetron_mricore_src_files AcquisitionPassthroughGadget.cpp
                                 SimpleReconGadget.cpp
                                 ImageSortGadget.cpp
                                 GenericCartesianGrappaReconGadget.cpp 
+				MultiChannelCartesianGrappaReconGadget.cpp 
                                 GenericCartesianReconReferencePrepGadget.cpp 
+                                FlippingCartesianReconReferencePrepGadget.cpp 
                                 GenericReconPartialFourierHandlingGadget.cpp 
                                 GenericReconPartialFourierHandlingFilterGadget.cpp 
                                 GenericReconPartialFourierHandlingPOCSGadget.cpp 
@@ -151,6 +155,7 @@ set( gadgetron_mricore_config_files
     Generic_Cartesian_Grappa.xml
     Generic_Cartesian_Grappa_T2W.xml
     Generic_Cartesian_Grappa_RealTimeCine.xml
+    NoAve_Cartesian_Grappa.xml
 )
 
 add_library(gadgetron_mricore SHARED 

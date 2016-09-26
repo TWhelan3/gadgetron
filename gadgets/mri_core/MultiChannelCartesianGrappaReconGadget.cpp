@@ -1,5 +1,5 @@
 
-#include "GenericCartesianGrappaReconGadget.h"
+#include "MultiChannelCartesianGrappaReconGadget.h"
 #include <iomanip>
 
 #include "mri_core_kspace_filter.h"
@@ -21,17 +21,17 @@
 
 namespace Gadgetron {
 
-    GenericCartesianGrappaReconGadget::GenericCartesianGrappaReconGadget() : num_encoding_spaces_(1), process_called_times_(0)
+    MultiChannelCartesianGrappaReconGadget::MultiChannelCartesianGrappaReconGadget() : num_encoding_spaces_(1), process_called_times_(0)
     {
         gt_timer_.set_timing_in_destruction(false);
         gt_timer_local_.set_timing_in_destruction(false);
     }
 
-    GenericCartesianGrappaReconGadget::~GenericCartesianGrappaReconGadget()
+    MultiChannelCartesianGrappaReconGadget::~MultiChannelCartesianGrappaReconGadget()
     {
     }
 
-    int GenericCartesianGrappaReconGadget::process_config(ACE_Message_Block* mb)
+    int MultiChannelCartesianGrappaReconGadget::process_config(ACE_Message_Block* mb)
     {
         ISMRMRD::IsmrmrdHeader h;
         try
@@ -144,7 +144,7 @@ namespace Gadgetron {
         return GADGET_OK;
     }
 
-    int GenericCartesianGrappaReconGadget::process(Gadgetron::GadgetContainerMessage< IsmrmrdReconData >* m1)
+    int MultiChannelCartesianGrappaReconGadget::process(Gadgetron::GadgetContainerMessage< IsmrmrdReconData >* m1)
     {
         process_called_times_++;
 
@@ -200,7 +200,7 @@ namespace Gadgetron {
 
                 // after this step, the recon_obj_[e].ref_calib_ and recon_obj_[e].ref_coil_map_ are set
 
-                if (perform_timing.value()) { gt_timer_.start("GenericCartesianGrappaReconGadget::make_ref_coil_map"); }
+                if (perform_timing.value()) { gt_timer_.start("MultiChannelCartesianGrappaReconGadget::make_ref_coil_map"); }
                 this->make_ref_coil_map(*recon_bit_->rbit_[e].ref_,*recon_bit_->rbit_[e].data_.data_.get_dimensions(), recon_obj_[e], e);
                 if (perform_timing.value()) { gt_timer_.stop(); }
 
@@ -219,7 +219,7 @@ namespace Gadgetron {
                 // ---------------------------------------------------------------
 
                 // after this step, coil map is computed and stored in recon_obj_[e].coil_map_
-                if (perform_timing.value()) { gt_timer_.start("GenericCartesianGrappaReconGadget::perform_coil_map_estimation"); }
+                if (perform_timing.value()) { gt_timer_.start("MultiChannelCartesianGrappaReconGadget::perform_coil_map_estimation"); }
                 this->perform_coil_map_estimation(recon_bit_->rbit_[e], recon_obj_[e], e);
                 if (perform_timing.value()) { gt_timer_.stop(); }
 
@@ -227,7 +227,7 @@ namespace Gadgetron {
 
                 // after this step, recon_obj_[e].kernel_, recon_obj_[e].kernelIm_, recon_obj_[e].unmixing_coeff_ are filled
                 // gfactor is computed too
-                if (perform_timing.value()) { gt_timer_.start("GenericCartesianGrappaReconGadget::perform_calib"); }
+                if (perform_timing.value()) { gt_timer_.start("MultiChannelCartesianGrappaReconGadget::perform_calib"); }
                 this->perform_calib(recon_bit_->rbit_[e], recon_obj_[e], e);
                 if (perform_timing.value()) { gt_timer_.stop(); }
 
@@ -253,19 +253,19 @@ namespace Gadgetron {
 
                 // ---------------------------------------------------------------
 
-                if (perform_timing.value()) { gt_timer_.start("GenericCartesianGrappaReconGadget::perform_unwrapping"); }
+                if (perform_timing.value()) { gt_timer_.start("MultiChannelCartesianGrappaReconGadget::perform_unwrapping"); }
                 this->perform_unwrapping(recon_bit_->rbit_[e], recon_obj_[e], e);
                 if (perform_timing.value()) { gt_timer_.stop(); }
 
                 // ---------------------------------------------------------------
 
-                if (perform_timing.value()) { gt_timer_.start("GenericCartesianGrappaReconGadget::compute_image_header"); }
+                if (perform_timing.value()) { gt_timer_.start("MultiChannelCartesianGrappaReconGadget::compute_image_header"); }
                 this->compute_image_header(recon_bit_->rbit_[e], recon_obj_[e], e);
                 if (perform_timing.value()) { gt_timer_.stop(); }
 
                 // ---------------------------------------------------------------
 
-                if (perform_timing.value()) { gt_timer_.start("GenericCartesianGrappaReconGadget::send_out_image_array"); }
+                if (perform_timing.value()) { gt_timer_.start("MultiChannelCartesianGrappaReconGadget::send_out_image_array"); }
                 this->send_out_image_array(recon_bit_->rbit_[e], recon_obj_[e].recon_res_, e, image_series.value() + ((int)e + 1), GADGETRON_IMAGE_REGULAR);
                 if (perform_timing.value()) { gt_timer_.stop(); }
 
@@ -276,7 +276,7 @@ namespace Gadgetron {
                     res.headers_ = recon_obj_[e].recon_res_.headers_;
                     res.meta_ = recon_obj_[e].recon_res_.meta_;
 
-                    if (perform_timing.value()) { gt_timer_.start("GenericCartesianGrappaReconGadget::send_out_image_array"); }
+                    if (perform_timing.value()) { gt_timer_.start("MultiChannelCartesianGrappaReconGadget::send_out_image_array"); }
                     this->send_out_image_array(recon_bit_->rbit_[e], res, e, image_series.value() + 10 * ((int)e + 1), GADGETRON_IMAGE_GFACTOR);
                     if (perform_timing.value()) { gt_timer_.stop(); }
                 }
@@ -292,7 +292,7 @@ namespace Gadgetron {
         return GADGET_OK;
     }
 
-    size_t GenericCartesianGrappaReconGadget::compute_image_number(ISMRMRD::ImageHeader& imheader, size_t encoding, size_t CHA, size_t cha, size_t E2)
+    size_t MultiChannelCartesianGrappaReconGadget::compute_image_number(ISMRMRD::ImageHeader& imheader, size_t encoding, size_t CHA, size_t cha, size_t E2)
     {
         if (encoding >= meas_max_idx_.size())
         {
@@ -313,7 +313,7 @@ namespace Gadgetron {
         return imageNum;
     }
 
-    int GenericCartesianGrappaReconGadget::send_out_image_array(IsmrmrdReconBit& recon_bit, IsmrmrdImageArray& res, size_t encoding, int series_num, const std::string& data_role)
+    int MultiChannelCartesianGrappaReconGadget::send_out_image_array(IsmrmrdReconBit& recon_bit, IsmrmrdImageArray& res, size_t encoding, int series_num, const std::string& data_role)
     {
         try
         {
@@ -392,7 +392,7 @@ namespace Gadgetron {
         }
         catch (...)
         {
-            GERROR_STREAM("Errors in GenericCartesianGrappaReconGadget::send_out_image_array(...) ... ");
+            GERROR_STREAM("Errors in MultiChannelCartesianGrappaReconGadget::send_out_image_array(...) ... ");
             return GADGET_FAIL;
         }
 
@@ -401,7 +401,7 @@ namespace Gadgetron {
 
     // ----------------------------------------------------------------------------------------
 
-    void GenericCartesianGrappaReconGadget::make_ref_coil_map(IsmrmrdDataBuffered& ref_, std::vector<size_t>  recon_dims, ReconObjType& recon_obj, size_t encoding)
+    void MultiChannelCartesianGrappaReconGadget::make_ref_coil_map(IsmrmrdDataBuffered& ref_, std::vector<size_t>  recon_dims, ReconObjType& recon_obj, size_t encoding)
     {
 
         try
@@ -568,11 +568,11 @@ namespace Gadgetron {
         }
         catch (...)
         {
-            GADGET_THROW("Errors happened in GenericCartesianGrappaReconGadget::make_ref_coil_map(...) ... ");
+            GADGET_THROW("Errors happened in MultiChannelCartesianGrappaReconGadget::make_ref_coil_map(...) ... ");
         }
     }
 
-    void GenericCartesianGrappaReconGadget::perform_coil_map_estimation(IsmrmrdReconBit& recon_bit, ReconObjType& recon_obj, size_t e)
+    void MultiChannelCartesianGrappaReconGadget::perform_coil_map_estimation(IsmrmrdReconBit& recon_bit, ReconObjType& recon_obj, size_t e)
     {
         try
         {
@@ -613,11 +613,11 @@ namespace Gadgetron {
         }
         catch (...)
         {
-            GADGET_THROW("Errors happened in GenericCartesianGrappaReconGadget::perform_coil_map_estimation(...) ... ");
+            GADGET_THROW("Errors happened in MultiChannelCartesianGrappaReconGadget::perform_coil_map_estimation(...) ... ");
         }
     }
 
-    void GenericCartesianGrappaReconGadget::perform_calib(IsmrmrdReconBit& recon_bit, ReconObjType& recon_obj, size_t e)
+    void MultiChannelCartesianGrappaReconGadget::perform_calib(IsmrmrdReconBit& recon_bit, ReconObjType& recon_obj, size_t e)
     {
         try
         {
@@ -770,11 +770,11 @@ namespace Gadgetron {
         }
         catch (...)
         {
-            GADGET_THROW("Errors happened in GenericCartesianGrappaReconGadget::perform_calib(...) ... ");
+            GADGET_THROW("Errors happened in MultiChannelCartesianGrappaReconGadget::perform_calib(...) ... ");
         }
     }
 
-    void GenericCartesianGrappaReconGadget::perform_unwrapping(IsmrmrdReconBit& recon_bit, ReconObjType& recon_obj, size_t e)
+    void MultiChannelCartesianGrappaReconGadget::perform_unwrapping(IsmrmrdReconBit& recon_bit, ReconObjType& recon_obj, size_t e)
     {
         try
         {
@@ -803,8 +803,8 @@ namespace Gadgetron {
             size_t convkE1 = recon_obj.kernel_.get_size(1);
             size_t convkE2 = recon_obj.kernel_.get_size(2);
 
-            recon_obj.recon_res_.data_.create(RO, E1, E2, 1, N, S, SLC);
-
+            recon_obj.recon_res_.data_.create(RO, E1, E2, dstCHA, N, S, SLC);
+		//recon_obj.recon_res_.data_.create(RO, E1, E2, 1, N, S, SLC);
             //if (!debug_folder_full_path_.empty())
             //{
             //    std::stringstream os;
@@ -870,8 +870,8 @@ namespace Gadgetron {
                     hoNDArray< std::complex<float> > unmixing(RO, E1, E2, srcCHA, pUnmix);
 
                     T* pRes = &(recon_obj.recon_res_.data_(0, 0, 0, 0, n, s, slc));
-                    hoNDArray< std::complex<float> > res(RO, E1, E2, 1, pRes);
-
+                    hoNDArray< std::complex<float> > res(RO, E1, E2, dstCHA, pRes);
+		
                     Gadgetron::apply_unmix_coeff_aliased_image_3D(aliasedIm, unmixing, res);
                 }
             }
@@ -886,11 +886,11 @@ namespace Gadgetron {
         }
         catch (...)
         {
-            GADGET_THROW("Errors happened in GenericCartesianGrappaReconGadget::perform_unwrapping(...) ... ");
+            GADGET_THROW("Errors happened in MultiChannelCartesianGrappaReconGadget::perform_unwrapping(...) ... ");
         }
     }
 
-    void GenericCartesianGrappaReconGadget::compute_image_header(IsmrmrdReconBit& recon_bit, ReconObjType& recon_obj, size_t e)
+    void MultiChannelCartesianGrappaReconGadget::compute_image_header(IsmrmrdReconBit& recon_bit, ReconObjType& recon_obj, size_t e)
     {
         try
         {
@@ -1062,9 +1062,9 @@ namespace Gadgetron {
         }
         catch (...)
         {
-            GADGET_THROW("Errors happened in GenericCartesianGrappaReconGadget::compute_image_header(...) ... ");
+            GADGET_THROW("Errors happened in MultiChannelCartesianGrappaReconGadget::compute_image_header(...) ... ");
         }
     }
 
-    GADGET_FACTORY_DECLARE(GenericCartesianGrappaReconGadget)
+    GADGET_FACTORY_DECLARE(MultiChannelCartesianGrappaReconGadget)
 }

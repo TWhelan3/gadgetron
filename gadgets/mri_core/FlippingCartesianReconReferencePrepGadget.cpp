@@ -1,5 +1,5 @@
 
-#include "GenericCartesianReconReferencePrepGadget.h"
+#include "FlippingCartesianReconReferencePrepGadget.h"
 #include <iomanip>
 
 #include "hoNDArray_reductions.h"
@@ -7,17 +7,17 @@
 
 namespace Gadgetron {
 
-    GenericCartesianReconReferencePrepGadget::GenericCartesianReconReferencePrepGadget() : num_encoding_spaces_(1), process_called_times_(0)
+    FlippingCartesianReconReferencePrepGadget::FlippingCartesianReconReferencePrepGadget() : num_encoding_spaces_(1), process_called_times_(0)
     {
         gt_timer_.set_timing_in_destruction(false);
         gt_timer_local_.set_timing_in_destruction(false);
     }
 
-    GenericCartesianReconReferencePrepGadget::~GenericCartesianReconReferencePrepGadget()
+    FlippingCartesianReconReferencePrepGadget::~FlippingCartesianReconReferencePrepGadget()
     {
     }
 
-    int GenericCartesianReconReferencePrepGadget::process_config(ACE_Message_Block* mb)
+    int FlippingCartesianReconReferencePrepGadget::process_config(ACE_Message_Block* mb)
     {
         ISMRMRD::IsmrmrdHeader h;
         try
@@ -97,7 +97,7 @@ namespace Gadgetron {
         return GADGET_OK;
     }
 
-    int GenericCartesianReconReferencePrepGadget::process(Gadgetron::GadgetContainerMessage< IsmrmrdReconData >* m1)
+    int FlippingCartesianReconReferencePrepGadget::process(Gadgetron::GadgetContainerMessage< IsmrmrdReconData >* m1)
     {
         process_called_times_++;
 
@@ -111,7 +111,7 @@ namespace Gadgetron {
         size_t e;
         for (e = 0; e < recon_bit_->rbit_.size(); e++)
         {
-        		auto & rbit = recon_bit_->rbit_[e];
+            auto & rbit = recon_bit_->rbit_[e];
             std::stringstream os;
             os << "_encoding_" << e;
 
@@ -124,7 +124,7 @@ namespace Gadgetron {
                 // if no ref data is set, make copy the ref point from the  data
                 if (!rbit.ref_)
                 {
-                	rbit.ref_ = rbit.data_;
+                    rbit.ref_ = rbit.data_;
                 }
             }
 
@@ -132,10 +132,11 @@ namespace Gadgetron {
 
             // useful variables
             hoNDArray< std::complex<float> >& ref = (*rbit.ref_).data_;
+            hoNDArray< std::complex<float> >& dat = rbit.data_.data_;
 
             SamplingLimit sampling_limits[3];
             for (int i = 0; i < 3; i++)
-            	sampling_limits[i] = (*rbit.ref_).sampling_.sampling_limits_[i];
+                sampling_limits[i] = (*rbit.ref_).sampling_.sampling_limits_[i];
 
             size_t RO = ref.get_size(0);
             size_t E1 = ref.get_size(1);
@@ -145,15 +146,79 @@ namespace Gadgetron {
             size_t S = ref.get_size(5);
             size_t SLC = ref.get_size(6);
 
-            // stored the ref data ready for calibration
+            //stored the ref data ready for calibration
             hoNDArray< std::complex<float> > ref_calib;
-           // -----------------------------------------
+            // -----------------------------------------
             // 1) average the ref according to the input parameters; 
             //    if interleaved mode, sampling times for every E1/E2 location is detected and line by line averaging is performed 
             //    this is required when irregular cartesian sampling is used or number of frames cannot be divided in full by acceleration factor
             // 2) detect the sampled region and crop the ref data if needed
             // 3) update the sampling_limits
             // -----------------------------------------
+
+
+            ///AWKWARD FLIP
+            //For each E1 in each CHA, flip the RO 
+
+            
+            if(flip_RO.value()>0)
+            {
+                int start = flip_RO.value()==1?1:0;
+                int stride =flip_RO.value()>2?1:2;
+                for(int n=start; n<N; n+=stride)
+                {
+                    std::vector<std::complex<float>> oldROref;
+                    std::vector<std::complex<float>> oldROdat;
+                    oldROref.resize(RO);
+                    oldROdat.resize(RO);
+                    for (int cha = 0; cha < CHA; cha++)
+                    {
+                        for (int e1 = 0; e1 < E1; e1++)
+                        {
+                            for (int ro = 0; ro < RO; ro++) 
+                            {
+                                oldROref[ro] =ref(ro, e1, 0, cha, n, 0, 0);
+                                oldROdat[ro] =dat(ro, e1, 0, cha, n, 0, 0);
+                            }
+                            for (int ro = 0; ro < RO; ro++) 
+                            {
+                                ref(ro, e1, 0, cha, n, 0, 0)=oldROref[RO-ro-1];
+                                dat(ro, e1, 0, cha, n, 0, 0)=oldROdat[RO-ro-1];
+                            }
+                        }
+                    }
+                }
+            }
+            if(flip_E1.value()>0)
+            {
+                int start = flip_E1.value()==1?1:0;
+                int stride =flip_E1.value()>2?1:2;
+                for(int n=0; n<N; n++)
+                {
+                    std::vector<std::complex<float>> oldROref;
+                    std::vector<std::complex<float>> oldROdat;
+                    oldROref.resize(E1);
+                    oldROdat.resize(E1);
+                    for (int cha = 0; cha < CHA; cha++)
+                    {
+                        for (int ro = 0; ro < RO; ro++) 
+                        {
+                        for (int e1 = 0; e1 < E1; e1++)
+                            {
+                                oldROref[e1] =ref(ro, e1, 0, cha, n, 0, 0);
+                                oldROdat[e1] =dat(ro, e1, 0, cha, n, 0, 0);
+                            }
+                            for (int e1 = 0; e1 < E1; e1++)
+                            {
+                                ref(ro, e1, 0, cha, n, 0, 0)=oldROref[E1-e1-1];
+                                dat(ro, e1, 0, cha, n, 0, 0)=oldROdat[E1-e1-1];
+                            }
+                       }
+                    }
+                }
+            }
+
+            //End of AWKWARD FLIP
 
             hoNDArray< std::complex<float> > ref_recon_buf;
 
@@ -280,8 +345,7 @@ namespace Gadgetron {
 
             ref = ref_calib;
             for (int i = 0; i < 3; i++)
-            	(*rbit.ref_).sampling_.sampling_limits_[i] = sampling_limits[i];
-
+                (*rbit.ref_).sampling_.sampling_limits_[i] = sampling_limits[i];
        }
 
         if (this->next()->putq(m1) < 0)
@@ -293,5 +357,5 @@ namespace Gadgetron {
         return GADGET_OK;
     }
 
-    GADGET_FACTORY_DECLARE(GenericCartesianReconReferencePrepGadget)
+    GADGET_FACTORY_DECLARE(FlippingCartesianReconReferencePrepGadget)
 }
