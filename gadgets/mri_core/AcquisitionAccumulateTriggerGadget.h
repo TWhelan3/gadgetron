@@ -74,6 +74,8 @@ namespace Gadgetron{
       IsmrmrdAcquisitionData prev_;
       unsigned long trigger_events_;
 
+	GADGET_PROPERTY(use_calib_as_data, bool, "Whether to use calibration as image data", true);
+
       virtual int process_config(ACE_Message_Block* mb);
 
       virtual int process(GadgetContainerMessage<ISMRMRD::AcquisitionHeader>* m1,
