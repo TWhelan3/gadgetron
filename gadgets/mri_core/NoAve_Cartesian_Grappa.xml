@@ -66,10 +66,10 @@
         <!-- every set has its own kernels -->
         <property><name>average_all_ref_S</name><value>false</value></property>
 
-	<!-- Flip Even echos in Readout Direction -->
+	<!-- Flip even echos in Readout Direction -->
 	<property><name>flip_RO</name><value>2</value></property>
 
-	<!-- Flip aill echos in E1 Direction -->
+	<!-- Flip all echos in E1 Direction -->
 	<property><name>flip_E1</name><value>3</value></property>
     </gadget>
 
@@ -89,6 +89,11 @@
 
         <!-- whether to send out gfactor -->
         <property><name>send_out_gfactor</name><value>false</value></property>
+
+	<!-- kernel size -->
+	 <property><name>grappa_kSize_RO</name><value>5</value></property>
+	 <property><name>grappa_kSize_E1</name><value>4</value></property>
+
     </gadget>
 
     <!-- Image Array Scaling -->
