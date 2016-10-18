@@ -143,6 +143,9 @@ void grappa2d_calib(const hoNDArray<T>& acsSrc, const hoNDArray<T>& acsDst, doub
         B.createMatrix( A.rows(), colB, B_mem.begin() );
         T* pB = B.begin();
 
+
+	GDEBUG_STREAM("rowA "<<rowA<<" colA "<<colA<<" colB "<<colB<<" lenRO "<<lenRO<<" lenE1 "<<eE1-sE1+1);
+	GDEBUG_STREAM("sRO "<<sRO<<" eRO "<<eRO<<" sE1 "<<sE1<<" eE1 "<<eE1);
         long long e1;
         for ( e1=(long long)sE1; e1<=(long long)eE1; e1++ )
         {
