@@ -85,6 +85,7 @@ set( gadgetron_mricore_header_files GadgetMRIHeaders.h
                                     ImageArraySplitGadget.h
                                     PseudoReplicatorGadget.h
                                     SimpleReconGadget.h
+                                    MultiChanReconGadget.h
                                     ImageSortGadget.h
                                     GenericCartesianGrappaReconGadget.h 
                                     MultiChannelCartesianGrappaReconGadget.h 
@@ -128,6 +129,7 @@ set( gadgetron_mricore_src_files AcquisitionPassthroughGadget.cpp
                                 ImageArraySplitGadget.cpp
                                 PseudoReplicatorGadget.cpp
                                 SimpleReconGadget.cpp
+				MultiChanReconGadget.cpp
                                 ImageSortGadget.cpp
                                 GenericCartesianGrappaReconGadget.cpp 
 				MultiChannelCartesianGrappaReconGadget.cpp 
@@ -147,6 +149,7 @@ endif (WIN32)
 
 set( gadgetron_mricore_config_files
     default.xml
+    default_mc.xml
     default_short.xml
     default_optimized.xml
     default_measurement_dependencies.xml
