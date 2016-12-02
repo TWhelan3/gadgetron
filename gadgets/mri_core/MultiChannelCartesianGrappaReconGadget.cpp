@@ -168,15 +168,21 @@ namespace Gadgetron {
             if (recon_bit_->rbit_[e].ref_)
             {
                 // ---------------------------------------------------------------
+		
+		
+		
+		        // after this step, the recon_obj_[e].ref_calib_ and recon_obj_[e].ref_coil_map_ are set
 
-                // after this step, the recon_obj_[e].ref_calib_ and recon_obj_[e].ref_coil_map_ are set
+	        this->make_ref_coil_map(*recon_bit_->rbit_[e].ref_,*recon_bit_->rbit_[e].data_.data_.get_dimensions(), recon_obj_[e], e);
 
-                this->make_ref_coil_map(*recon_bit_->rbit_[e].ref_,*recon_bit_->rbit_[e].data_.data_.get_dimensions(), recon_obj_[e], e);
-
-                // after this step, coil map is computed and stored in recon_obj_[e].coil_map_
-                this->perform_coil_map_estimation(recon_bit_->rbit_[e], recon_obj_[e], e);
-                // ---------------------------------------------------------------
-
+	        // after this step, coil map is computed and stored in recon_obj_[e].coil_map_
+	        if(!flatmap.value())
+			this->perform_coil_map_estimation(recon_bit_->rbit_[e], recon_obj_[e], e);
+	        else
+		{
+			recon_obj_[e].coil_map_=recon_obj_[e].ref_coil_map_;
+        		recon_obj_[e].coil_map_.fill(1);//create(*recon_bit_->rbit_[e].data_.data_.get_dimensions());
+		}
                 // after this step, recon_obj_[e].kernel_, recon_obj_[e].kernelIm_, recon_obj_[e].unmixing_coeff_ are filled
                 // gfactor is computed too
 

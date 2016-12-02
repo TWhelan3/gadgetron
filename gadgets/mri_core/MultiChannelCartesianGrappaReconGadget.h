@@ -117,6 +117,8 @@ namespace Gadgetron {
         GADGET_PROPERTY(grappa_reg_lamda, double, "Grappa regularization threshold", 0.0005);
         GADGET_PROPERTY(grappa_calib_over_determine_ratio, double, "Grappa calibration overdermination ratio", 45);
 
+	//Coil combine
+	GADGET_PROPERTY(flatmap, bool, "Whether to use flat CSM", true);
     protected:
 
         // --------------------------------------------------

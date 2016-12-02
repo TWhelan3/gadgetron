@@ -98,6 +98,8 @@ namespace Gadgetron{
     //    }
     //}
 
+    int max_k1 = hdr_.encoding[0].encodedSpace.matrixSize.y;
+
     //Iterate over the reference data of the bucket
     IsmrmrdDataBuffered* pCurrDataBuffer = NULL;
     for (std::vector<IsmrmrdAcquisitionData>::iterator it = m1->getObjectPtr()->ref_.begin();
@@ -105,6 +107,9 @@ namespace Gadgetron{
     {
         //Get a reference to the header for this acquisition
         ISMRMRD::AcquisitionHeader & acqhdr = *it->head_->getObjectPtr();
+
+	//hack fix for weeeeird problem
+	if(acqhdr.idx.kspace_encode_step_1>=max_k1) continue;
 
         //Generate the key to the corresponding ReconData buffer
         key = getKey(acqhdr.idx);
@@ -157,6 +162,9 @@ namespace Gadgetron{
     {
         //Get a reference to the header for this acquisition
         ISMRMRD::AcquisitionHeader & acqhdr = *it->head_->getObjectPtr();
+
+	//hack fix for weeeeird problem
+	if(acqhdr.idx.kspace_encode_step_1>=max_k1) continue;
 
         //Generate the key to the corresponding ReconData buffer
         key = getKey(acqhdr.idx);
