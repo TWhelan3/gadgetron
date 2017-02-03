@@ -163,8 +163,8 @@ namespace Gadgetron {
             
             if(flip_RO.value()>0)
             {
-                int start = flip_RO.value()==1?1:0;
-                int stride =flip_RO.value()>2?1:2;
+                int start  = flip_RO.value()==1? 1:0;
+                int stride = flip_RO.value() >2? 1:2;
                 for(int n=start; n<N; n+=stride)
                 {
                     std::vector<std::complex<float>> oldROref;
@@ -191,9 +191,9 @@ namespace Gadgetron {
             }
             if(flip_E1.value()>0)
             {
-                int start = flip_E1.value()==1?1:0;
-                int stride =flip_E1.value()>2?1:2;
-                for(int n=0; n<N; n++)
+                int start  = flip_E1.value()==1 ?1:0;
+                int stride = flip_E1.value() >2 ?1:2;
+                for(int n=0; n<N; n+=stride)
                 {
                     std::vector<std::complex<float>> oldROref;
                     std::vector<std::complex<float>> oldROdat;
