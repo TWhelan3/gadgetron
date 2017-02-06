@@ -30,21 +30,21 @@ namespace Gadgetron{
   public ImageWriterGadget<ACE_UINT16>
   {
   public:
-    GADGET_DECLARE(ImageWriterGadgetUSHORT)
+    GADGET_DECLARE(ImageWriterGadgetUSHORT);
   };
 
   class EXPORTGADGETSMRICORE ImageWriterGadgetFLOAT :
   public ImageWriterGadget<float>
   {
   public:
-    GADGET_DECLARE(ImageWriterGadgetFLOAT)
+    GADGET_DECLARE(ImageWriterGadgetFLOAT);
   };
 
   class EXPORTGADGETSMRICORE ImageWriterGadgetCPLX :
   public ImageWriterGadget< std::complex<float> >
   {
   public:
-    GADGET_DECLARE(ImageWriterGadgetCPLX)
+    GADGET_DECLARE(ImageWriterGadgetCPLX);
   };
 }
 #endif //IMAGEWRITERGADGET_H

@@ -13,7 +13,7 @@ namespace Gadgetron{
   public SimpleReconGadget
     {
     public:
-      GADGET_DECLARE(MultiChanReconGadget)
+      GADGET_DECLARE(MultiChanReconGadget);
      // MultiChanReconGadget();
 	
     protected:
