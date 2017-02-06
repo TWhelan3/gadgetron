@@ -131,7 +131,7 @@ namespace Gadgetron{
 
       if (this->next()->putq(m1) == -1)
       {
-	GERROR("RemoveROOversamplingGadget::process, passing data on to next gadget");
+	GERROR("RemoveROOversamplingGadget::process, passing data on to next gadget\n");
 	return GADGET_FAIL;
       }
 

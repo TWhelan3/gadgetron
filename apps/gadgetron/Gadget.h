@@ -637,7 +637,7 @@ namespace Gadgetron{
 
           if (!m) {
             if (!pass_on_undesired_data_) {
-              GERROR("Gadget1::process, conversion of message block");
+              GERROR("Gadget1::process, conversion of message block\n");
               return -1;
             } else {
               return (this->next()->putq(mb));

@@ -2,6 +2,7 @@ IF (WIN32)
     ADD_DEFINITIONS(-D__BUILD_GADGETRON_MRICORE__)
 ENDIF (WIN32)
 
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g")
 find_package(Ismrmrd REQUIRED)
 
 if (MKL_FOUND)
@@ -159,6 +160,7 @@ set( gadgetron_mricore_config_files
     Generic_Cartesian_Grappa_T2W.xml
     Generic_Cartesian_Grappa_RealTimeCine.xml
     NoAve_Cartesian_Grappa.xml
+    NoAve_Cartesian_GrappaLoad.xml
 )
 
 add_library(gadgetron_mricore SHARED 
