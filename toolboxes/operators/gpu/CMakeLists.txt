@@ -1,10 +1,10 @@
 if (WIN32)
-  ADD_DEFINITIONS(-D__BUILD_GADGETRON_GPUOPERATORS__)
-endif (WIN32)
+  add_definitions(-D__BUILD_GADGETRON_GPUOPERATORS__)
+endif ()
 
 if(WIN32)
 link_directories(${Boost_LIBRARY_DIRS})
-endif(WIN32)
+endif()
 
 include_directories(
   ${CUDA_INCLUDE_DIRS}
@@ -36,7 +36,6 @@ set_target_properties(gadgetron_toolbox_gpuoperators PROPERTIES VERSION ${GADGET
 target_link_libraries(gadgetron_toolbox_gpuoperators 
   gadgetron_toolbox_gpucore 
   gadgetron_toolbox_gpunfft
-  ${Boost_LIBRARIES}
   ${CUDA_LIBRARIES}
   ${CUDA_CUBLAS_LIBRARIES} 
   )

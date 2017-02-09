@@ -1,8 +1,6 @@
-IF (WIN32)
-    ADD_DEFINITIONS(-D__BUILD_GADGETRON_PLPLOT__)
-ENDIF (WIN32)
-
-find_package(Ismrmrd REQUIRED)
+if (WIN32)
+    add_definitions(-D__BUILD_GADGETRON_PLPLOT__)
+endif ()
 
 include_directories(${PLPLOT_INCLUDE_DIR})
 link_directories(${PLPLOT_LIB_DIR})
@@ -27,7 +25,7 @@ include_directories(
 
 set( header_files NoiseCovariancePlottingGadget.h )
 set( src_files NoiseCovariancePlottingGadget.cpp )
-set( config_files GT_2DT_Cartesian_GFactor_NoiseStd.xml )
+set( config_files Generic_Cartesian_Grappa_SNR_CoilQA.xml )
 
 source_group(config FILES ${config_files})
 

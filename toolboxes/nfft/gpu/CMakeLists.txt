@@ -1,11 +1,11 @@
 if (WIN32)
-  ADD_DEFINITIONS(-D__BUILD_GADGETRON_GPUNFFT__)
-  ADD_DEFINITIONS(-D_USE_MATH_DEFINES)
-endif (WIN32)
+  add_definitions(-D__BUILD_GADGETRON_GPUNFFT__)
+  add_definitions(-D_USE_MATH_DEFINES)
+endif ()
 
 if(WIN32)
   link_directories(${Boost_LIBRARY_DIRS})
-endif(WIN32)
+endif()
 
 include_directories( 
   ${CMAKE_SOURCE_DIR}/toolboxes/core
@@ -31,7 +31,6 @@ target_link_libraries(gadgetron_toolbox_gpunfft
   gadgetron_toolbox_gpufft
   gadgetron_toolbox_gpucore
   gadgetron_toolbox_log
-  ${Boost_LIBRARIES}
   ${CUDA_LIBRARIES} 
   ${CUDA_CUFFT_LIBRARIES} 
   ${CUDA_CUBLAS_LIBRARIES}

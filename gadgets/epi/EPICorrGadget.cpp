@@ -117,7 +117,12 @@ int EPICorrGadget::process(
       // Accumulate over navigator triplets and sum over coils
       // this is the average phase difference between odd and even navigators
       for (p=0; p<numNavigators_-2; p=p+2) {
-    ctemp += arma::sum(arma::conj(navdata_.slice(p)+navdata_.slice(p+2)) % navdata_.slice(p+1),1);
+        arma::cx_fmat nav_diff = arma::conj(navdata_.slice(p)+navdata_.slice(p+2)) % navdata_.slice(p+1);
+        // abs(nav_diff) goes like abs(navdata_)^2, so correct with the sqrt of the amplitude before
+        //   combining across coils:
+        nav_diff = nav_diff / arma::sqrt(arma::abs(nav_diff));
+        // combine across coils (and accumulate across triplets):                                                                                 
+        ctemp += arma::sum( nav_diff, 1 );
       }
       
       // TODO: Add a configuration toggle to switch between correction types
@@ -128,7 +133,7 @@ int EPICorrGadget::process(
       //}
 
       // Robust fit to a straight line
-      float slope = ctemp.n_rows * std::arg(arma::cdot(ctemp.rows(0,ctemp.n_rows-2), ctemp.rows(1,ctemp.n_rows-1)));
+      float slope = (ctemp.n_rows-1) * std::arg(arma::cdot(ctemp.rows(0,ctemp.n_rows-2), ctemp.rows(1,ctemp.n_rows-1)));
       ctemp = ctemp % arma::exp(arma::cx_fvec(arma::zeros<arma::fvec>(x.n_rows), -slope*x));
       float intercept = std::arg(arma::sum(ctemp));
       //GDEBUG_STREAM("Slope = " << slope << std::endl);

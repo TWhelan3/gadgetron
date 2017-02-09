@@ -20,8 +20,8 @@ namespace Gadgetron{
   DistributeGadget::DistributeGadget()
   : BasicPropertyGadget()
   , mtx_("distribution_mtx")
+  , prev_connector_(0)
   {
-
   }
 
 
@@ -60,21 +60,24 @@ namespace Gadgetron{
     }
 
     //If we are not supposed to use this node for compute, add one to make sure we are not on node 0
-    if (!use_this_node_for_compute.value()) {
-      node_index = node_index+1;
-    }
+    //if (!use_this_node_for_compute.value()) {
+    //  node_index = node_index+1;
+    //}
 
-    if (node_index == 0) { //process locally
-      if (this->next()->putq(m) == -1) {
-        m->release();
-        GERROR("DistributeGadget::process, passing data on to next gadget\n");
-        return GADGET_FAIL;
-      }
-      return GADGET_OK;
-    }
+    // instead of sending down the stream, processing is done by making connections
+    //if (node_index == 0) { //process locally
+    //  if (this->next()->putq(m) == -1) {
+    //    m->release();
+    //    GERROR("DistributeGadget::process, passing data on to next gadget\n");
+    //    return GADGET_FAIL;
+    //  }
+    //  return GADGET_OK;
+    //}
 
     //At this point, the node index is positive, so we need to find a suitable connector.
+    mtx_.acquire();
     auto n = node_map_.find(node_index);
+    mtx_.release();
     GadgetronConnector* con = 0;
     if (n != node_map_.end()) { //We have a suitable connection already.
       con = n->second;
@@ -102,6 +105,25 @@ namespace Gadgetron{
 
         //Is this a free node
         if (me.active_reconstructions == 0) break;
+      }
+
+      // first job, send to current node if required
+      if (use_this_node_for_compute.value() && node_index==0)
+      {
+        size_t num_of_ip = local_address_.size();
+
+          for (auto it = nl.begin(); it != nl.end(); it++)
+          {
+              for (size_t ii=0; ii<num_of_ip; ii++)
+              {
+                  if (it->address == local_address_[ii])
+                  {
+                      me = *it;
+                  }
+              }
+          }
+
+          GDEBUG_STREAM("Send first job to current node : " << me.address);
       }
 
       con = new DistributionConnector(this);
@@ -154,7 +176,10 @@ namespace Gadgetron{
         GERROR("Failed to send XML parameters to compute node\n");
         return GADGET_FAIL;
       }
+      
+      mtx_.acquire();
       node_map_[node_index] = con;
+      mtx_.release();
     }
 
 
@@ -177,8 +202,36 @@ namespace Gadgetron{
       }
 
     } else {
-      //We have a valid connector
+     
+      //Let's make sure that we did not send a close message to this connector already
+      auto c = std::find(closed_connectors_.begin(),closed_connectors_.end(),con);
+      if (c != closed_connectors_.end()) {
+	//This is a bad situation, we need to bail out. 
+	m->release();
+	GERROR("The valid connection for incoming data has already been closed. Distribute Gadget is not configured properly for this type of data\n");
+	return GADGET_FAIL;
+      }
 
+      //If nodes receive their data sequentially (default), we should see if we should be closing the previos connection
+      if (nodes_used_sequentially.value() && !single_package_mode.value()) {
+	//Is this a new connection, if so, send previous one a close
+	if (prev_connector_ && prev_connector_ != con) {
+	  GDEBUG("Sending close to previous connector, not expecting any more data for this one\n");
+	  auto mc = new GadgetContainerMessage<GadgetMessageIdentifier>();
+	  mc->getObjectPtr()->id = GADGET_MESSAGE_CLOSE;
+	  
+	  if (prev_connector_->putq(mc) == -1) {
+	    GERROR("Unable to put CLOSE package on queue of previous connection\n");
+	    return -1;
+	  }
+	  closed_connectors_.push_back(prev_connector_);
+	}
+      }
+     
+      //Update previous connection
+      prev_connector_ = con;
+
+      //We have a valid connector
       auto m1 = new GadgetContainerMessage<GadgetMessageIdentifier>();
       m1->getObjectPtr()->id = message_id(m);
 
@@ -198,6 +251,7 @@ namespace Gadgetron{
           GERROR("Unable to put CLOSE package on queue\n");
           return -1;
         }
+	closed_connectors_.push_back(con);
       }
     }
 
@@ -247,6 +301,26 @@ namespace Gadgetron{
       collect_gadget_->set_parameter("pass_through_mode","true");
     }
 
+    // get current node ip addresses
+    ACE_INET_Addr* the_addr_array = NULL;
+    size_t num_of_ip = 0;
+
+    int rc = ACE::get_ip_interfaces (num_of_ip, the_addr_array);
+    if (rc != 0)
+    {
+        GERROR_STREAM("Retreive local ip addresses failed ... ");
+        num_of_ip = 0;
+    }
+
+    if (the_addr_array!=NULL ) delete [] the_addr_array;
+
+    for (size_t ii=0; ii<num_of_ip; ii++)
+    {
+        std::string ip = std::string(the_addr_array[ii].get_host_addr());
+        local_address_.push_back(ip);
+        GDEBUG_STREAM("--> Local address  : " << ip);
+    }
+
     return GADGET_OK;
   }
 
@@ -255,22 +329,29 @@ namespace Gadgetron{
     int ret = Gadget::close(flags);
     if (flags) {
       mtx_.acquire();
-      auto it = node_map_.begin();
-      while (it != node_map_.end()) {
-        if (it->second) {
+
+      for (auto n = node_map_.begin(); n != node_map_.end(); n++) {
+        if (n->second) {
           auto m1 = new GadgetContainerMessage<GadgetMessageIdentifier>();
           m1->getObjectPtr()->id = GADGET_MESSAGE_CLOSE;
 
-          if (it->second->putq(m1) == -1) {
+          if (n->second->putq(m1) == -1) {
             GERROR("Unable to put CLOSE package on queue\n");
             return -1;
           }
+	}
+      }
+
+      auto it = node_map_.begin();
+      while (it != node_map_.end()) {
+        if (it->second) {
           it->second->wait();
           delete it->second;
         }
         node_map_.erase(it);
         it = node_map_.begin();
       }
+
       mtx_.release();
       GDEBUG("All connectors closed. Waiting for Gadget to close\n");
     }

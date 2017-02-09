@@ -1,21 +1,30 @@
-IF (WIN32)
-    ADD_DEFINITIONS(-D__BUILD_GADGETRON_MRICORE__)
-ENDIF (WIN32)
+if (WIN32)
+    add_definitions(-D__BUILD_GADGETRON_MRICORE__)
+endif ()
+
+find_package(ZFP)
+if (ZFP_FOUND)
+    message("ZFP Found")
+    add_definitions(-DGADGETRON_COMPRESSION_ZFP)
+    include_directories(${ZFP_INCLUDE_DIR})
+else ()
+    message("ZFP NOT Found")
+endif ()
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g")
-find_package(Ismrmrd REQUIRED)
+#find_package(Ismrmrd REQUIRED)
 
 if (MKL_FOUND)
     # This is a fix for the bug in SVD when MKL is multi-threaded
-    MESSAGE("MKL Found, enabling MKL for mri_core gadgets.")
+    message("MKL Found, enabling MKL for mri_core gadgets.")
     add_definitions(-DHAVE_MKL)
     # These are needed to get the linking to work properly when
     # MKL is installed, but Armadillo is NOT using it.
     list(APPEND EXTRA_MKL_LIBRARIES mkl_core)
     list(APPEND EXTRA_MKL_LIBRARIES mkl_intel_thread)
-    INCLUDE_DIRECTORIES( ${MKL_INCLUDE_DIR} )
-    LINK_DIRECTORIES( ${MKL_LIB_DIR} ${MKL_COMPILER_LIB_DIR} )
-endif (MKL_FOUND)
+    include_directories( ${MKL_INCLUDE_DIR} )
+    link_directories( ${MKL_LIB_DIR} ${MKL_COMPILER_LIB_DIR} )
+endif ()
 
 include_directories(
     ${CMAKE_SOURCE_DIR}/toolboxes/core/cpu/math
@@ -27,22 +36,32 @@ include_directories(
     ${CMAKE_SOURCE_DIR}/toolboxes/core/cpu/algorithm
     ${CMAKE_SOURCE_DIR}/toolboxes/core/cpu/hostutils
     ${CMAKE_SOURCE_DIR}/toolboxes/core/cpu/math
+    ${CMAKE_SOURCE_DIR}/toolboxes/dwt/cpu
     ${CMAKE_SOURCE_DIR}/toolboxes/core/gpu
+    ${CMAKE_SOURCE_DIR}/toolboxes/operators
+    ${CMAKE_SOURCE_DIR}/toolboxes/operators/cpu
+    ${CMAKE_SOURCE_DIR}/toolboxes/solvers 
+    ${CMAKE_SOURCE_DIR}/toolboxes/solvers/cpu
     ${CMAKE_SOURCE_DIR}/toolboxes/mri_core
     ${CMAKE_SOURCE_DIR}/toolboxes/mri/pmri/gpu
     ${CMAKE_SOURCE_DIR}/toolboxes/fft/cpu
     ${CMAKE_SOURCE_DIR}/toolboxes/fft/gpu
     ${CMAKE_SOURCE_DIR}/toolboxes/klt/cpu
     ${CMAKE_SOURCE_DIR}/toolboxes/gadgettools
-    ${CMAKE_SOURCE_DIR}/toolboxes/gtplus
-    ${CMAKE_SOURCE_DIR}/toolboxes/gtplus/util
-    ${CMAKE_SOURCE_DIR}/toolboxes/gtplus/workflow
-    ${CMAKE_SOURCE_DIR}/toolboxes/gtplus/algorithm
-    ${CMAKE_SOURCE_DIR}/toolboxes/gtplus/solver
+    ${CMAKE_SOURCE_DIR}/toolboxes/registration/optical_flow
+    ${CMAKE_SOURCE_DIR}/toolboxes/registration/optical_flow/cpu
+    ${CMAKE_SOURCE_DIR}/toolboxes/registration/optical_flow/cpu/transformation
+    ${CMAKE_SOURCE_DIR}/toolboxes/registration/optical_flow/cpu/solver
+    ${CMAKE_SOURCE_DIR}/toolboxes/registration/optical_flow/cpu/warper
+    ${CMAKE_SOURCE_DIR}/toolboxes/registration/optical_flow/cpu/dissimilarity
+    ${CMAKE_SOURCE_DIR}/toolboxes/registration/optical_flow/cpu/register
+    ${CMAKE_SOURCE_DIR}/toolboxes/registration/optical_flow/cpu/application
+    ${CMAKE_SOURCE_DIR}/toolboxes/image_io
     ${ARMADILLO_INCLUDE_DIRS}
     ${MKL_INCLUDE_DIR}
     ${ISMRMRD_INCLUDE_DIR}
-)
+    ${Boost_INCLUDE_DIR}
+)   
 
 if (ARMADILLO_FOUND)
     list(APPEND OPTIMIZED_GADGETS NoiseAdjustGadget.cpp)
@@ -51,8 +70,8 @@ if (ARMADILLO_FOUND)
     list(APPEND OPTIMIZED_GADGET_HEADERS PCACoilGadget.h)
     list(APPEND OPTIMIZED_GADGET_LIBS gadgetron_toolbox_cpucore_math ${ARMADILLO_LIBRARIES})
 elseif (ARMADILLO_FOUND)
-    MESSAGE("Armadillo not found, i.e. not compiling Blas/Lapack optimized MRI Gadgets")
-endif (ARMADILLO_FOUND)
+    message("Armadillo not found, i.e. not compiling Blas/Lapack optimized MRI Gadgets")
+endif ()
 
 set( gadgetron_mricore_header_files GadgetMRIHeaders.h 
                                     AcquisitionPassthroughGadget.h 
@@ -61,7 +80,9 @@ set( gadgetron_mricore_header_files GadgetMRIHeaders.h
                                     FFTGadget.h 
                                     ImageFinishGadget.h 
                                     CombineGadget.h
-                                    CropAndCombineGadget.h  
+                                    CropAndCombineGadget.h 
+                                    CoilSenMapGadget.h
+                                    DependencyDataSenderGadget.h
                                     ImageWriterGadget.h 
                                     MRIImageWriter.h
                                     MRIImageReader.h
@@ -80,24 +101,34 @@ set( gadgetron_mricore_header_files GadgetMRIHeaders.h
                                     CplxDumpGadget.h 
                                     DependencyQueryGadget.h 
                                     DependencyQueryWriter.h 
-                                    ComplexToFloatGadget.h
-                                    AcquisitionAccumulateTriggerGadget.h
+                                    ComplexToFloatGadget.h 
+                                    AcquisitionAccumulateTriggerGadget.h 
                                     BucketToBufferGadget.h 
-                                    ImageArraySplitGadget.h
-                                    PseudoReplicatorGadget.h
                                     SimpleReconGadget.h
                                     MultiChanReconGadget.h
-                                    ImageSortGadget.h
-                                    GenericCartesianGrappaReconGadget.h 
                                     MultiChannelCartesianGrappaReconGadget.h 
-                                    GenericCartesianReconReferencePrepGadget.h 
                                     FlippingCartesianReconReferencePrepGadget.h 
+                                    ImageArraySplitGadget.h 
+                                    PseudoReplicatorGadget.h 
+                                    SimpleReconGadget.h 
+                                    ImageSortGadget.h 
+                                    GenericReconBase.h 
+                                    GenericReconGadget.h 
+                                    GenericReconCartesianGrappaGadget.h 
+                                    GenericReconCartesianSpiritGadget.h 
+                                    GenericReconCartesianNonLinearSpirit2DTGadget.h 
+                                    GenericReconCartesianReferencePrepGadget.h 
                                     GenericReconPartialFourierHandlingGadget.h 
                                     GenericReconPartialFourierHandlingFilterGadget.h 
                                     GenericReconPartialFourierHandlingPOCSGadget.h 
                                     GenericReconKSpaceFilteringGadget.h 
                                     GenericReconFieldOfViewAdjustmentGadget.h 
-                                    GenericReconImageArrayScalingGadget.h )
+                                    GenericReconImageArrayScalingGadget.h 
+                                    GenericReconEigenChannelGadget.h 
+                                    GenericReconNoiseStdMapComputingGadget.h 
+                                    WhiteNoiseInjectorGadget.h
+                                    NoiseSummaryGadget.h 
+                                    NHLBICompression.h )
 
 set( gadgetron_mricore_src_files AcquisitionPassthroughGadget.cpp 
                                 AcquisitionFinishGadget.cpp 
@@ -106,6 +137,8 @@ set( gadgetron_mricore_src_files AcquisitionPassthroughGadget.cpp
                                 ImageFinishGadget.cpp 
                                 CombineGadget.cpp 
                                 CropAndCombineGadget.cpp 
+                                CoilSenMapGadget.cpp 
+                                DependencyDataSenderGadget.cpp 
                                 ImageWriterGadget.cpp 
                                 MRIImageWriter.cpp
                                 MRIImageReader.cpp
@@ -132,35 +165,52 @@ set( gadgetron_mricore_src_files AcquisitionPassthroughGadget.cpp
                                 SimpleReconGadget.cpp
 				MultiChanReconGadget.cpp
                                 ImageSortGadget.cpp
-                                GenericCartesianGrappaReconGadget.cpp 
 				MultiChannelCartesianGrappaReconGadget.cpp 
-                                GenericCartesianReconReferencePrepGadget.cpp 
                                 FlippingCartesianReconReferencePrepGadget.cpp 
+                                GenericReconBase.cpp 
+                                GenericReconGadget.cpp 
+                                GenericReconCartesianGrappaGadget.cpp 
+                                GenericReconCartesianSpiritGadget.cpp 
+                                GenericReconCartesianNonLinearSpirit2DTGadget.cpp 
+                                GenericReconCartesianReferencePrepGadget.cpp 
                                 GenericReconPartialFourierHandlingGadget.cpp 
                                 GenericReconPartialFourierHandlingFilterGadget.cpp 
                                 GenericReconPartialFourierHandlingPOCSGadget.cpp 
                                 GenericReconKSpaceFilteringGadget.cpp 
                                 GenericReconFieldOfViewAdjustmentGadget.cpp 
-                                GenericReconImageArrayScalingGadget.cpp )
-
-if (WIN32)
-    set( gadgetron_mricore_header_files ${gadgetron_mricore_header_files} WhiteNoiseInjectorGadget.h )
-    set( gadgetron_mricore_src_files ${gadgetron_mricore_src_files} WhiteNoiseInjectorGadget.cpp )
-endif (WIN32)
+                                GenericReconImageArrayScalingGadget.cpp 
+                                GenericReconEigenChannelGadget.cpp 
+                                GenericReconNoiseStdMapComputingGadget.cpp 
+                                WhiteNoiseInjectorGadget.cpp
+                                NoiseSummaryGadget.cpp )
 
 set( gadgetron_mricore_config_files
-    default.xml
-    default_mc.xml
-    default_short.xml
-    default_optimized.xml
-    default_measurement_dependencies.xml
-    isalive.xml
-    gtquery.xml
-    Generic_Cartesian_Grappa.xml
-    Generic_Cartesian_Grappa_T2W.xml
-    Generic_Cartesian_Grappa_RealTimeCine.xml
-    NoAve_Cartesian_Grappa.xml
-    NoAve_Cartesian_GrappaLoad.xml
+    config/NoAve_Cartesian_Grappa.xml
+    config/NoAve_Cartesian_GrappaLoad.xml
+    config/default.xml
+    config/default_short.xml
+    config/default_optimized.xml
+    config/default_measurement_dependencies.xml
+    config/default_measurement_dependencies_ismrmrd_storage.xml
+    config/default_measurement_dependencies_Noise_CoilSen_SCC.xml
+    config/isalive.xml
+    config/gtquery.xml
+    config/Generic_Cartesian_Grappa.xml
+    config/Generic_Cartesian_Grappa_SNR.xml
+    config/Generic_Cartesian_Grappa_T2W.xml
+    config/Generic_Cartesian_Grappa_FatWater.xml
+    config/Generic_Cartesian_Grappa_RealTimeCine.xml
+    config/Generic_Cartesian_Grappa_EPI.xml
+    config/Generic_Cartesian_Grappa_EPI_AVE.xml
+    config/Generic_Cartesian_Spirit.xml
+    config/Generic_Cartesian_Spirit_RealTimeCine.xml
+    config/Generic_Cartesian_Spirit_SASHA.xml
+    config/Generic_Cartesian_NonLinear_Spirit_RealTimeCine.xml
+    config/Generic_Cartesian_RandomSampling_NonLinear_Spirit_RealTimeCine.xml
+    config/Generic_Cartesian_NonLinear_Spirit_RealTimeCine_Cloud.xml
+    config/Generic_Cartesian_RandomSampling_NonLinear_Spirit_RealTimeCine_Cloud.xml
+    config/NoiseSummary.xml
+    config/ismrmrd_dump.xml
 )
 
 add_library(gadgetron_mricore SHARED 
@@ -181,13 +231,18 @@ target_link_libraries(gadgetron_mricore
     gadgetron_toolbox_cpufft
     gadgetron_toolbox_cpuklt
     gadgetron_toolbox_mri_core
-    # gadgetron_toolbox_gtplus_io
+    gadgetron_toolbox_cpuoperator
+    gadgetron_toolbox_image_analyze_io
     ${ISMRMRD_LIBRARIES} 
     ${FFTW3_LIBRARIES} 
     optimized ${ACE_LIBRARIES} debug ${ACE_DEBUG_LIBRARY} 
-    ${BOOST_LIBRARIES}
     ${OPTIMIZED_GADGET_LIBS}
+    ${Boost_LIBRARIES}
 )
+
+if (ZFP_FOUND)
+   target_link_libraries(gadgetron_mricore ${ZFP_LIBRARIES})
+endif ()
 
 install(FILES 
     gadgetron_mricore_export.h
@@ -197,8 +252,6 @@ install(FILES
 
 if (ARMADILLO_FOUND)
     install(FILES ${gadgetron_mricore_config_files} DESTINATION ${GADGETRON_INSTALL_CONFIG_PATH} COMPONENT main)
-endif (ARMADILLO_FOUND)
-
-install(FILES ismrmrd_dump.xml DESTINATION ${GADGETRON_INSTALL_CONFIG_PATH} COMPONENT main)
+endif ()
 
 install(TARGETS gadgetron_mricore DESTINATION lib COMPONENT main)

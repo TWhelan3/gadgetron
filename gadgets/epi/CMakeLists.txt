@@ -1,8 +1,6 @@
-IF (WIN32)
-  ADD_DEFINITIONS(-D__BUILD_GADGETRON_EPI__)
-ENDIF (WIN32)
-
-find_package(Ismrmrd REQUIRED)
+if (WIN32)
+  add_definitions(-D__BUILD_GADGETRON_EPI__)
+endif ()
 
 include_directories(
   ${CMAKE_SOURCE_DIR}/gadgets/mri_core
@@ -19,6 +17,7 @@ add_library(gadgetron_epi SHARED
   EPICorrGadget.h EPICorrGadget.cpp
   FFTXGadget.h FFTXGadget.cpp
   CutXGadget.h CutXGadget.cpp
+  OneEncodingGadget.h OneEncodingGadget.cpp
   epi.xml
   epi_gtplus_grappa.xml
 )
@@ -32,6 +31,7 @@ target_link_libraries(
   gadgetron_toolbox_cpufft
   gadgetron_toolbox_cpucore_math
   gadgetron_toolbox_log
+  ${ISMRMRD_LIBRARIES}
   optimized ${ACE_LIBRARIES} debug ${ACE_DEBUG_LIBRARY} 
 )
 

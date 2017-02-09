@@ -1,8 +1,6 @@
-IF (WIN32)
-    ADD_DEFINITIONS(-D__BUILD_GADGETRON_INTERVENTIONAL_MRI__)
-ENDIF (WIN32)
-
-find_package(Ismrmrd REQUIRED)
+if (WIN32)
+    add_definitions(-D__BUILD_GADGETRON_INTERVENTIONAL_MRI__)
+endif ()
 
 include_directories(
     ${CMAKE_SOURCE_DIR}/toolboxes/core/cpu/math
@@ -18,7 +16,6 @@ include_directories(
     ${CMAKE_SOURCE_DIR}/toolboxes/fft/cpu
     ${CMAKE_SOURCE_DIR}/toolboxes/fft/gpu
     ${CMAKE_SOURCE_DIR}/toolboxes/gadgettools
-    ${CMAKE_SOURCE_DIR}/toolboxes/gtplus
     ${CMAKE_SOURCE_DIR}/gadgets/mri_core
     ${HDF5_INCLUDE_DIR}
     ${HDF5_INCLUDE_DIR}/cpp

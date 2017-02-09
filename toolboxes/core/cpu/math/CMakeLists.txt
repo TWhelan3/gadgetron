@@ -1,6 +1,6 @@
 if (WIN32)
-    ADD_DEFINITIONS(-D__BUILD_GADGETRON_CPUCORE_MATH__)
-endif (WIN32)
+    add_definitions(-D__BUILD_GADGETRON_CPUCORE_MATH__)
+endif ()
 
 include_directories(
     ${CMAKE_SOURCE_DIR}/toolboxes/core/cpu
@@ -8,26 +8,21 @@ include_directories(
     ${CMAKE_SOURCE_DIR}/toolboxes/core/cpu/algorithm
     ${CMAKE_SOURCE_DIR}/toolboxes/core/cpu/hostutils
     ${CMAKE_SOURCE_DIR}/toolboxes/core/cpu/math
-    ${ARMADILLO_INCLUDE_DIRS} 
-    ${ISMRMRD_INCLUDE_DIR} )
+    ${ARMADILLO_INCLUDE_DIRS} )
 
 if (MKL_FOUND)
-    INCLUDE_DIRECTORIES( ${MKL_INCLUDE_DIR} )
-    LINK_DIRECTORIES( ${MKL_LIB_DIR} ${MKL_COMPILER_LIB_DIR} )
-endif (MKL_FOUND)
+    include_directories( ${MKL_INCLUDE_DIR} )
+    link_directories( ${MKL_LIB_DIR} ${MKL_COMPILER_LIB_DIR} )
+endif ()
 
 set(cpucore_math_header_files
     cpucore_math_export.h
-    # hoNDArray_math_util.h
     hoNDArray_math.h
     hoNDImage_util.h
     hoNDImage_util.hxx
-    hoNDImage_util_instantiate.hxx 
     hoNDArray_linalg.h )
 
 set(cpucore_math_src_files 
-    # hoNDArray_math_util.cpp
-    hoNDImage_util.cpp 
     hoNDArray_linalg.cpp )
 
 if (ARMADILLO_FOUND)
@@ -45,7 +40,7 @@ if (ARMADILLO_FOUND)
         hoNDArray_elemwise.cpp
         )
 
-endif (ARMADILLO_FOUND)
+endif ()
 
 add_library(gadgetron_toolbox_cpucore_math SHARED ${cpucore_math_header_files} ${cpucore_math_src_files})
 set_target_properties(gadgetron_toolbox_cpucore_math PROPERTIES VERSION ${GADGETRON_VERSION_STRING} SOVERSION ${GADGETRON_SOVERSION})
@@ -53,23 +48,21 @@ set_target_properties(gadgetron_toolbox_cpucore_math PROPERTIES VERSION ${GADGET
 if (MKL_FOUND)
     target_link_libraries(gadgetron_toolbox_cpucore_math 
         gadgetron_toolbox_cpucore
-	gadgetron_toolbox_log
+        gadgetron_toolbox_log
         ${ARMADILLO_LIBRARIES}
-        ${ISMRMRD_LIBRARIES}
         ${FFTW3_LIBRARIES} 
         ${MKL_LIBRARIES}
     )
-else (MKL_FOUND)
+else ()
     target_link_libraries(gadgetron_toolbox_cpucore_math 
         gadgetron_toolbox_cpucore
-	gadgetron_toolbox_log
+        gadgetron_toolbox_log
         ${ARMADILLO_LIBRARIES}
-        ${ISMRMRD_LIBRARIES}
         ${BLAS_LIBRARIES}
         ${LAPACK_LIBRARIES}
         ${FFTW3_LIBRARIES}
     )
-endif (MKL_FOUND)
+endif ()
 
 install(TARGETS gadgetron_toolbox_cpucore_math DESTINATION lib COMPONENT main)
 
