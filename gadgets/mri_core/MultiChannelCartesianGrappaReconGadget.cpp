@@ -593,7 +593,6 @@ namespace Gadgetron {
 
                         Gadgetron::grappa2d_unmixing_coeff(kIm, coilMap, (size_t)acceFactorE1_[e], unmixC, gFactor);
                         memcpy(&(recon_obj.gfactor_(0, 0, 0, 0, n, s, slc)), gFactor.begin(), gFactor.get_number_of_bytes());
-
                     }
 
                     // -----------------------------------
@@ -656,7 +655,6 @@ namespace Gadgetron {
                 float fftCompensationRatio = (float)(1.0 / std::sqrt(effectiveAcceFactor));
                 Gadgetron::scal(fftCompensationRatio, complex_im_recon_buf_);
             }
-
             // unwrapping
 
             long long num = N*S*SLC;
