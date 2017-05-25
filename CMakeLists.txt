@@ -175,15 +175,9 @@ endif()
 # We actually only use system and thread explicitly, but they require linking in date_time and chrono
 if (WIN32)
   find_package(Boost COMPONENTS system thread date_time chrono program_options filesystem REQUIRED)
-<<<<<<< HEAD
 else()
   find_package(Boost COMPONENTS system thread program_options filesystem REQUIRED)
 endif()
-=======
-else(WIN32)
-  find_package(Boost 1.59.0 COMPONENTS system thread program_options filesystem REQUIRED)
-endif(WIN32)
->>>>>>> cde0414... save before oblivion
 
 find_package(ACE REQUIRED)
 
@@ -265,7 +259,7 @@ if (FFTW3_FOUND)
 else()
   message("FFTW3 not found")
 endif()
-find_package(Ismrmrd)
+find_package(ISMRMRD REQUIRED)
 if (ISMRMRD_FOUND)
   message("ISMRMRD Found")
 	##SET(ISMRMRD_LIBRARIES	"${ISMRMRD_LIBRARIES} /usr/local/hdf5/lib/libhdf5.so")
