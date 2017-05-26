@@ -4,7 +4,7 @@
 		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 
 	<!-- reader -->
-	<gadget>	  
+	<gadget>
 		<name>LoadIsmrmrdDatasetAcquisitions</name>
 		<dll>cfmm_gadgets</dll>
 		<classname>LoadIsmrmrdDatasetAcquisitions</classname>
@@ -95,7 +95,6 @@
 		<dll>gadgetron_mricore</dll>
 		<classname>GenericReconImageArrayScalingGadget</classname>
 
-	  
 		<property><name>perform_timing</name><value>false</value></property>
 		<property><name>verbose</name><value>false</value></property>
 
