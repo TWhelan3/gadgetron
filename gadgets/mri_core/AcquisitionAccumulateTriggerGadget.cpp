@@ -317,9 +317,10 @@ namespace Gadgetron{
 
     uint16_t espace = m1->getObjectPtr()->encoding_space_ref;
 
-
-	
-   if (use_calib_as_data.value() ||!ISMRMRD::FlagBit(ISMRMRD::ISMRMRD_ACQ_IS_PARALLEL_CALIBRATION).isSet(m1->getObjectPtr()->flags))
+   if (use_calib_as_data.value() ||
+	!(ISMRMRD::FlagBit(ISMRMRD::ISMRMRD_ACQ_IS_PARALLEL_CALIBRATION).isSet(m1->getObjectPtr()->flags) ||
+	  ISMRMRD::FlagBit(ISMRMRD::ISMRMRD_ACQ_IS_PHASECORR_DATA).isSet(m1->getObjectPtr()->flags)
+	))
       {
 	bucket->data_.push_back(d);
         if (bucket->datastats_.size() < (espace+1)) {
