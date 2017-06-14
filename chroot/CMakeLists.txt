@@ -30,7 +30,8 @@ string(FIND "${CUDA_LIBRARIES}" "libcudart.so" LIBCUDART_LOC)
 string(FIND "${CUDA_LIBRARIES}" "libcuda.so" LIBCUDA_LOC)
 
 if (LIBCUDA_LOC EQUAL -1)
-  get_filename_component(CUDART_LIB_DIR ${CUDA_LIBRARIES} PATH)
+  list(GET CUDA_LIBRARIES 0 MYTEST)
+  get_filename_component(CUDART_LIB_DIR ${MYTEST} PATH)
 else ()
   if(LIBCUDART_LOC LESS LIBCUDA_LOC)
     string(SUBSTRING "${CUDA_LIBRARIES}" 0 ${LIBCUDART_LOC} CUDART_LIB_DIR)
@@ -41,9 +42,10 @@ else ()
   endif()
 endif ()
 
-get_filename_component(CUDA_LIB_DIR ${CUDA_LIBRARY} PATH)
-get_filename_component(CUDAFFT_LIB_DIR ${CUDA_CUFFT_LIBRARIES} PATH)
-get_filename_component(CUDABLAS_LIB_DIR ${CUDA_CUBLAS_LIBRARIES} PATH)
+list(GET CUDA_CUFFT_LIBRARIES 0 MYTEST)
+get_filename_component(CUDAFFT_LIB_DIR ${MYTEST} PATH)
+list(GET CUDA_CUBLAS_LIBRARIES 0 MYTEST)
+get_filename_component(CUDABLAS_LIB_DIR ${MYTEST} PATH)
 
 set (LIBRARY_PATHS ${LIBRARY_PATHS}:${CUDART_LIB_DIR}:${CUDA_LIB_DIR}:${CUDAFFT_LIB_DIR}:${CUDABLAS_LIB_DIR})
 
