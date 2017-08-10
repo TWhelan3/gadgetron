@@ -3,6 +3,7 @@
 #include "ace/SOCK_Connector.h"
 #include "ace/INET_Addr.h"
 #include "gadgetron_matlab_export.h"
+#include "mri_core_data.h"
 #include "Gadget.h"
 #include "gadgetron_paths.h"
 #include "hoNDArray.h"
@@ -28,11 +29,10 @@
 
 namespace Gadgetron{
 
-template <class T> class MatlabGadget :
-		public Gadget2<T, hoNDArray< std::complex<float> > >
+class BipolarCorrectMatlabGadget : public Gadget1<IsmrmrdImageArray>
 {
 public:
-	MatlabGadget(): Gadget2<T, hoNDArray< std::complex<float> > >()
+	BipolarCorrectMatlabGadget(): Gadget1<IsmrmrdImageArray>()
 	{
 		// Open the Matlab Engine on the current host
 		GDEBUG("Starting MATLAB engine\n");
@@ -58,7 +58,7 @@ public:
 		}
 	}
 
-	~MatlabGadget()
+	~BipolarCorrectMatlabGadget()
 	{
 		GDEBUG("Closing down Matlab\n");
 		engClose(engine_);
@@ -68,7 +68,7 @@ protected:
 	GADGET_PROPERTY(debug_mode, bool, "Debug mode", false);
 	GADGET_PROPERTY(matlab_path, std::string, "Path to Matlab code", "");
 	GADGET_PROPERTY(matlab_classname, std::string, "Name of Matlab gadget class", "");
-
+	virtual int process(GadgetContainerMessage<IsmrmrdImageArray>* m2);
 	int process_config(ACE_Message_Block* mb)
 	{
 		std::string cmd;
@@ -140,13 +140,13 @@ protected:
 
 
 
-class EXPORTGADGETSMATLAB ImageMatlabGadget :
-public MatlabGadget<ISMRMRD::ImageHeader>
+/*class EXPORTGADGETSMATLAB ImageBipolarCorrectMatlabGadget :
+public BipolarCorrectMatlabGadget<ISMRMRD::ImageHeader>
 {
 public:
-	GADGET_DECLARE(ImageMatlabGadget);
+	GADGET_DECLARE(ImageBipolarCorrectMatlabGadget);
 	int process(GadgetContainerMessage<ISMRMRD::ImageHeader>* m1,
 			GadgetContainerMessage< hoNDArray< std::complex<float> > >* m2);
 
-};
+};*/
 }
