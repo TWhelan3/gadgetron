@@ -16,6 +16,10 @@ classdef BaseGadget < handle
         % Init function
         function init(g, xmlstr)
             % Convert the xml config string to an IsmrmrdHeader object
+            while xmlstr(end)~='>'
+                xmlstr=xmlstr(1:end-1);
+            end
+
             g.xml = ismrmrd.xml.deserialize(xmlstr);
             g.emptyQ();
         end
