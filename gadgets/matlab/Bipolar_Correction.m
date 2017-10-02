@@ -1,12 +1,12 @@
 classdef Bipolar_Correction < handle & BaseGadget
     %UNTITLED Summary of this class goes here
     %   Detailed explanation goes here
-    
+
     properties
     end
-    
+
     methods
-    
+
         function g = config(g)
         end
 
@@ -42,11 +42,11 @@ classdef Bipolar_Correction < handle & BaseGadget
                     if mod(index_echo,2) == 1
                     complex_3D = complex_3D.*exp(1i*(LinearPhaseError_3D./2));
                     else
-                    complex_3D = complex_3D.*exp(-1i*(LinearPhaseError_3D./2));    
+                    complex_3D = complex_3D.*exp(-1i*(LinearPhaseError_3D./2));
                     end
                     complex_image(:,:,:,index_ch,index_echo) = complex_3D;
                 end
-            end    
+            end
             %---------------------------------------
             %complex_tmp(:,:,:,1,:) = complex_image;
             %complex_tmp(:,:,:,1,:) = mag_SoS.*exp(1i*angle(complex_image));

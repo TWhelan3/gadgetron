@@ -35,7 +35,7 @@ int BipolarCorrectMatlabGadget::process(GadgetContainerMessage<IsmrmrdImageArray
 
 	GINFO("%d %d %d %d %d\n", imSize[0], imSize[1], imSize[2], imSize[3], imSize[4]);
 
-	if (xres == 0) xres = 1; 
+	if (xres == 0) xres = 1;
 	if (yres == 0) yres = 1;
 	if (numSlices == 0) numSlices = 1;
 	if (numChannels == 0) numChannels = 1;
