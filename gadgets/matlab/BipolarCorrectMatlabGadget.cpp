@@ -27,8 +27,8 @@ int BipolarCorrectMatlabGadget::process(GadgetContainerMessage<IsmrmrdImageArray
 	std::vector<size_t> imSize;
 	im_arr_ptr->get_dimensions(imSize);
 
-	int yres = imSize[0];
-	int xres = imSize[1];
+	int xres = imSize[0];
+	int yres = imSize[1];
 	int numSlices = imSize[2];
 	int numChannels = imSize[3];
 	int numEchos = imSize[4];
@@ -43,10 +43,6 @@ int BipolarCorrectMatlabGadget::process(GadgetContainerMessage<IsmrmrdImageArray
 
 	mwSize ndim = 5;
 
-	//weird
-	imSize[0]=xres;
-	imSize[1]=yres;
-	//weirdnessdone
 	// Create a mxArray for the Image data
 	mxArray *img_data = mxCreateNumericArray(5,imSize.data(), mxSINGLE_CLASS, mxCOMPLEX);
 
