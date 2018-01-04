@@ -225,7 +225,7 @@ void CmrKSpaceBinning<T>::process_binning_recon()
         // -----------------------------------------------------
         // release some memory to reduce peak RAM usage
         // -----------------------------------------------------
-        binning_obj_.data_.clear();
+        if(binning_obj_.data_.delete_data_on_destruct()) binning_obj_.data_.clear();
 
         // -----------------------------------------------------
         // perform kspace binning
@@ -234,7 +234,7 @@ void CmrKSpaceBinning<T>::process_binning_recon()
         // binning can be performed
         std::vector<size_t> slices_not_processing;
         this->compute_kspace_binning(bestHB, slices_not_processing);
-        binning_obj_.full_kspace_raw_.clear();
+        if(binning_obj_.full_kspace_raw_.delete_data_on_destruct()) binning_obj_.full_kspace_raw_.clear();
 
         // -----------------------------------------------------
         // perform recon on the binned kspace 
@@ -721,7 +721,7 @@ void CmrKSpaceBinning<T>::estimate_respiratory_navigator()
         NavigatorRoiType roi;
         roi.resize(S);
 
-        Gadgetron::hoImageRegContainer2DRegistration<T, float, 2, 2> reg;
+        Gadgetron::hoImageRegContainer2DRegistration<ImageType, ImageType, float> reg;
 
         size_t s, n, e1;
         for (s=0; s<S; s++)
@@ -1997,7 +1997,7 @@ void CmrKSpaceBinning<T>::perform_moco_selected_images_with_best_heart_beat(cons
 
         std::vector<unsigned int> key_frame(dstN, 0);
 
-        Gadgetron::hoImageRegContainer2DRegistration<float, float, 2, 2> reg;
+        Gadgetron::hoImageRegContainer2DRegistration<hoNDImage<float, 2>, hoNDImage<float, 2>, float> reg;
 
         GDEBUG_STREAM("Perform moco against best heart beat : " << this->kspace_binning_moco_reg_strength_);
         GDEBUG_STREAM("MOCO iterations : ");
@@ -2081,7 +2081,7 @@ void CmrKSpaceBinning<T>::perform_moco_warp_on_selected_images( const std::vecto
         ComplexImageContinerType output;
         output.copyFrom(input);
 
-        Gadgetron::hoImageRegContainer2DRegistration< T, float, 2, 2> reg;
+        Gadgetron::hoImageRegContainer2DRegistration<ImageType, ImageType, float> reg;
         reg.warpContainer2D(input, input, deform, output);
 
         warpped_complex_images.resize(dstN);

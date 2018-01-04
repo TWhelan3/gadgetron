@@ -82,7 +82,6 @@ namespace Gadgetron{
 
 	//Is this a shutdown message?
 	if (mid->getObjectPtr()->id == GADGET_MESSAGE_CLOSE) {
-
           ACE_UINT16 msgType = GADGET_MESSAGE_CLOSE;
           msgType = ACE_HTONS(msgType);
           socket_->send_n(reinterpret_cast<const char *>(&msgType), sizeof(msgType));

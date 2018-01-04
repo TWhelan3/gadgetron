@@ -59,6 +59,7 @@ include_directories(
     ${CMAKE_SOURCE_DIR}/toolboxes/registration/optical_flow/cpu/register
     ${CMAKE_SOURCE_DIR}/toolboxes/registration/optical_flow/cpu/application
     ${CMAKE_SOURCE_DIR}/toolboxes/image_io
+    ${CMAKE_SOURCE_DIR}/toolboxes/mri_image
     ${ARMADILLO_INCLUDE_DIRS}
     ${MKL_INCLUDE_DIR}
     ${ISMRMRD_INCLUDE_DIR}
@@ -76,7 +77,8 @@ elseif (ARMADILLO_FOUND)
     message("Armadillo not found, i.e. not compiling Blas/Lapack optimized MRI Gadgets")
 endif ()
 
-set( gadgetron_mricore_header_files GadgetMRIHeaders.h 
+set( gadgetron_mricore_header_files GadgetMRIHeaders.h
+                                    RateLimitGadget.h
                                     AcquisitionPassthroughGadget.h 
                                     AcquisitionFinishGadget.h 
                                     AccumulatorGadget.h 
@@ -117,6 +119,7 @@ set( gadgetron_mricore_header_files GadgetMRIHeaders.h
                                     ImageSortGadget.h 
                                     GenericReconBase.h 
                                     GenericReconGadget.h 
+				    GenericReconCartesianFFTGadget.h
                                     GenericReconCartesianGrappaGadget.h 
                                     GenericReconCartesianSpiritGadget.h 
                                     GenericReconCartesianNonLinearSpirit2DTGadget.h 
@@ -172,6 +175,7 @@ set( gadgetron_mricore_src_files AcquisitionPassthroughGadget.cpp
                                 FlippingCartesianReconReferencePrepGadget.cpp 
                                 GenericReconBase.cpp 
                                 GenericReconGadget.cpp 
+				GenericReconCartesianFFTGadget.cpp
                                 GenericReconCartesianGrappaGadget.cpp 
                                 GenericReconCartesianSpiritGadget.cpp 
                                 GenericReconCartesianNonLinearSpirit2DTGadget.cpp 
@@ -185,6 +189,7 @@ set( gadgetron_mricore_src_files AcquisitionPassthroughGadget.cpp
                                 GenericReconEigenChannelGadget.cpp 
                                 GenericReconNoiseStdMapComputingGadget.cpp 
                                 WhiteNoiseInjectorGadget.cpp
+                                RateLimitGadget.cpp
                                 NoiseSummaryGadget.cpp )
 
 set( gadgetron_mricore_config_files
@@ -198,11 +203,13 @@ set( gadgetron_mricore_config_files
     config/default_measurement_dependencies_Noise_CoilSen_SCC.xml
     config/isalive.xml
     config/gtquery.xml
+    config/Generic_Cartesian_FFT.xml
     config/Generic_Cartesian_Grappa.xml
     config/Generic_Cartesian_Grappa_SNR.xml
     config/Generic_Cartesian_Grappa_T2W.xml
     config/Generic_Cartesian_Grappa_FatWater.xml
     config/Generic_Cartesian_Grappa_RealTimeCine.xml
+    config/Generic_Cartesian_Grappa_RealTimeCine_Cloud.xml
     config/Generic_Cartesian_Grappa_EPI.xml
     config/Generic_Cartesian_Grappa_EPI_AVE.xml
     config/Generic_Cartesian_Spirit.xml
@@ -232,16 +239,21 @@ target_link_libraries(gadgetron_mricore
     gadgetron_toolbox_log
     gadgetron_toolbox_cpucore
     gadgetron_toolbox_cpufft
-    gadgetron_toolbox_cpuklt
-    gadgetron_toolbox_mri_core
-    gadgetron_toolbox_cpuoperator
     gadgetron_toolbox_image_analyze_io
+    gadgetron_toolbox_hostutils
     ${ISMRMRD_LIBRARIES} 
     ${FFTW3_LIBRARIES} 
     optimized ${ACE_LIBRARIES} debug ${ACE_DEBUG_LIBRARY} 
     ${OPTIMIZED_GADGET_LIBS}
     ${Boost_LIBRARIES}
 )
+if(ARMADILLO_FOUND)
+   target_link_libraries(gadgetron_mricore
+    gadgetron_toolbox_cpuoperator
+    gadgetron_toolbox_cpuklt
+    gadgetron_toolbox_mri_core
+)
+endif()
 
 if (ZFP_FOUND)
    target_link_libraries(gadgetron_mricore ${ZFP_LIBRARIES})

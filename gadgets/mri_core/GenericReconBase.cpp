@@ -1,5 +1,6 @@
 
 #include "GenericReconBase.h"
+#include <boost/filesystem.hpp>
 
 namespace Gadgetron {
 
@@ -22,6 +23,18 @@ namespace Gadgetron {
         {
             Gadgetron::get_debug_folder_path(debug_folder.value(), debug_folder_full_path_);
             GDEBUG_CONDITION_STREAM(verbose.value(), "Debug folder is " << debug_folder_full_path_);
+
+            // Create debug folder if necessary
+            boost::filesystem::path boost_folder_path(debug_folder_full_path_);
+            try
+            {
+                boost::filesystem::create_directories(boost_folder_path);
+            }
+            catch (...)
+            {
+                GERROR("Error creating the debug folder.\n");
+                return false;
+            }
         }
         else
         {
@@ -39,6 +52,7 @@ namespace Gadgetron {
 
     template class EXPORTGADGETSMRICORE GenericReconBase<IsmrmrdReconData>;
     template class EXPORTGADGETSMRICORE GenericReconBase<IsmrmrdImageArray>;
+    template class EXPORTGADGETSMRICORE GenericReconBase<ISMRMRD::ImageHeader>;
 
     GenericReconDataBase::GenericReconDataBase() : BaseClass()
     {
@@ -56,6 +70,15 @@ namespace Gadgetron {
     {
     }
 
+    GenericReconImageHeaderBase::GenericReconImageHeaderBase() : BaseClass()
+    {
+    }
+
+    GenericReconImageHeaderBase::~GenericReconImageHeaderBase()
+    {
+    }
+
     GADGET_FACTORY_DECLARE(GenericReconDataBase)
     GADGET_FACTORY_DECLARE(GenericReconImageBase)
+    GADGET_FACTORY_DECLARE(GenericReconImageHeaderBase)
 }

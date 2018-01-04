@@ -22,6 +22,7 @@ include_directories(
     ${CMAKE_SOURCE_DIR}/toolboxes/registration/optical_flow/cpu/transformation
     ${CMAKE_SOURCE_DIR}/toolboxes/registration/optical_flow/cpu/warper
     ${CMAKE_SOURCE_DIR}/toolboxes/image_io
+    ${CMAKE_SOURCE_DIR}/toolboxes/mri_image
   )
 
 set(cpu_operator_header_files 
@@ -46,7 +47,10 @@ set(cpu_operator_header_files
     hoMotionCompensation2DTOperator.h 
     ../curveFittingOperator.h 
     ../curveFittingCostFunction.h 
-    twoParaExpDecayOperator.h )
+    twoParaExpDecayOperator.h 
+    twoParaExpRecoveryOperator.h 
+    threeParaExpRecoveryOperator.h 
+    )
 
 set(cpu_operator_src_files 
     hoSPIRITOperator.cpp 
